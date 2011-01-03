@@ -18,6 +18,10 @@ public:
 		Operator("div", 20) {
 	}
 
+	double Evaluate(std::list<Value*>* params) {
+		return params->front()->GetValue() / params->back()->GetValue();
+	}
+
 };
 
 #endif /* DIVISION_H_ */

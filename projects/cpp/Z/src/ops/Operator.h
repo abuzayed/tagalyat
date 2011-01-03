@@ -8,6 +8,10 @@
 #ifndef OPERATOR_H_
 #define OPERATOR_H_
 
+#include <list>
+
+class Value;
+
 class Operator {
 
 private:
@@ -15,18 +19,12 @@ private:
 	int precedence_;
 
 public:
-	Operator(const char* n, int p) {
-		name_ = n;
-		precedence_ = p;
-	}
 
-	const char* name() {
-		return name_;
-	}
+	Operator(const char* n, int p);
+	const char* name();
+	int precedence();
 
-	int precedence() {
-		return precedence_;
-	}
+	virtual double Evaluate(std::list<Value*>* params) =0;
 
 };
 

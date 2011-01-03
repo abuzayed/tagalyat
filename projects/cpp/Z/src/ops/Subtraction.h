@@ -13,9 +13,15 @@
 #include "Operator.h"
 
 class Subtraction: public Operator {
+
 public:
+
 	Subtraction() :
 		Operator("sub", 10) {
+	}
+
+	double Evaluate(std::list<Value*>* params) {
+		return params->front()->GetValue() - params->back()->GetValue();
 	}
 
 };

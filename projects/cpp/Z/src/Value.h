@@ -20,15 +20,20 @@ public:
 };
 
 class Constant: public Value {
+
+private:
 	double value_;
+
 public:
 	Constant(double v);
 	double GetValue();
 	void Print(std::ostream *out);
+
 };
 
 class Operation: public Value {
 
+private:
 	Operator* op_;
 	std::list<Value*> params_;
 
@@ -38,6 +43,7 @@ public:
 	void AddParam(Value* param);
 	double GetValue();
 	void Print(std::ostream *out);
+
 };
 
 #endif /* VALUE_H_ */

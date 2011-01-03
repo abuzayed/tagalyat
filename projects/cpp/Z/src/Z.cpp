@@ -20,8 +20,9 @@ int main() {
 		Value* exp = parser.Parse(line);
 
 		exp->Print(&cout);
-
 		cout << endl;
+
+		cout << exp->GetValue() << endl;
 
 	}
 

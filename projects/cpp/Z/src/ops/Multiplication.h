@@ -13,9 +13,14 @@
 #include "Operator.h"
 
 class Multiplication: public Operator {
+
 public:
 	Multiplication() :
 		Operator("mul", 20) {
+	}
+
+	double Evaluate(std::list<Value*>* params) {
+		return params->front()->GetValue() * params->back()->GetValue();
 	}
 
 };

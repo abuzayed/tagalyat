@@ -32,7 +32,7 @@ void Operation::AddParam(Value* param) {
 }
 
 double Operation::GetValue() {
-	return -1;
+	return op_->Evaluate(&params_);
 }
 
 void Operation::Print(std::ostream *out) {
