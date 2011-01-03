@@ -10,20 +10,6 @@
 
 using namespace std;
 
-ExpParser::ExpParser() {
-	operators['+'] = 10;
-	operators['-'] = 10;
-	operators['*'] = 20;
-	operators['/'] = 20;
-}
-bool ExpParser::is_operator(char c) {
-	return operators.find(c) != operators.end();
-}
-
-int ExpParser::precedence(char c) {
-	return operators[c];
-}
-
 bool ExpParser::is_opening_paren(char c) {
 	return c == '(';
 }
@@ -33,7 +19,8 @@ bool ExpParser::is_closing_paren(char c) {
 }
 
 void ExpParser::pop_op() {
-	Operation *op = new Operation(ops_stack.top());
+
+	Operation *op = new Operation(operators_.get(ops_stack.top()));
 	ops_stack.pop();
 
 	Value* param2 = values_stack.top();
@@ -54,9 +41,13 @@ Value* ExpParser::parse(string line) {
 		if (isdigit(c)) {
 			Constant *v = new Constant(line[i] - 48);
 			values_stack.push(v);
-		} else if (is_operator(c)) {
+		} else if (operators_.IsOperator(c)) {
+
+			Operator* op = operators_.get(c);
+
 			while (!ops_stack.empty() && !is_opening_paren(ops_stack.top())
-					&& precedence(ops_stack.top()) >= precedence(c)) {
+					&& operators_.get(ops_stack.top())->precedence()
+							>= op->precedence()) {
 				pop_op();
 			}
 			ops_stack.push(c);

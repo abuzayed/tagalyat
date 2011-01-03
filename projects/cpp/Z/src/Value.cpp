@@ -23,8 +23,8 @@ void Constant::print(std::ostream *out) {
 	(*out) << value;
 }
 
-Operation::Operation(char n) {
-	name = n;
+Operation::Operation(Operator* op) {
+	op_ = op;
 }
 
 void Operation::add_param(Value* param) {
@@ -36,7 +36,7 @@ double Operation::get_value() {
 }
 
 void Operation::print(std::ostream *out) {
-	(*out) << name << "(";
+	(*out) << op_->name() << "(";
 
 	for (list<Value*>::iterator it = params.begin(); it != params.end(); it++) {
 		(*it)->print(out);

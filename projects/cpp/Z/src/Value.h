@@ -11,6 +11,8 @@
 #include <list>
 #include <iostream>
 
+#include "ops/Operator.h"
+
 class Value {
 public:
 	virtual double get_value() =0;
@@ -27,12 +29,12 @@ public:
 
 class Operation: public Value {
 
+	Operator* op_;
 	std::list<Value*> params;
-	char name;
 
 public:
 
-	Operation(char n);
+	Operation(Operator* op);
 	void add_param(Value* param);
 	double get_value();
 	void print(std::ostream *out);

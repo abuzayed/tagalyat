@@ -12,21 +12,19 @@
 #include <stack>
 
 #include "Value.h"
+#include "ops/Operators.h"
 
 class ExpParser {
 private:
-	std::map<char, int> operators;
+	Operators operators_;
 	std::stack<Value*> values_stack;
 	std::stack<char> ops_stack;
 
-	bool is_operator(char c);
-	int precedence(char c);
 	bool is_opening_paren(char c);
 	bool is_closing_paren(char c);
-    void pop_op();
+	void pop_op();
 
 public:
-	ExpParser();
 	Value* parse(std::string line);
 };
 
