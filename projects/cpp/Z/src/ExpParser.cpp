@@ -10,63 +10,63 @@
 
 using namespace std;
 
-bool ExpParser::is_opening_paren(char c) {
+bool ExpParser::IsOpeningParen(char c) {
 	return c == '(';
 }
 
-bool ExpParser::is_closing_paren(char c) {
+bool ExpParser::IsClosingParen(char c) {
 	return c == ')';
 }
 
-void ExpParser::pop_op() {
+void ExpParser::PopOperation() {
 
-	Operation *op = new Operation(operators_.get(ops_stack.top()));
-	ops_stack.pop();
+	Operation *op = new Operation(operators_.get(ops_stack_.top()));
+	ops_stack_.pop();
 
-	Value* param2 = values_stack.top();
-	values_stack.pop();
-	Value* param1 = values_stack.top();
-	values_stack.pop();
+	Value* param2 = values_stack_.top();
+	values_stack_.pop();
+	Value* param1 = values_stack_.top();
+	values_stack_.pop();
 
-	op->add_param(param1);
-	op->add_param(param2);
+	op->AddParam(param1);
+	op->AddParam(param2);
 
-	values_stack.push(op);
+	values_stack_.push(op);
 }
 
-Value* ExpParser::parse(string line) {
+Value* ExpParser::Parse(string line) {
 
 	for (unsigned int i = 0; i < line.length(); i++) {
 		char c = line[i];
 		if (isdigit(c)) {
 			Constant *v = new Constant(line[i] - 48);
-			values_stack.push(v);
+			values_stack_.push(v);
 		} else if (operators_.IsOperator(c)) {
 
 			Operator* op = operators_.get(c);
 
-			while (!ops_stack.empty() && !is_opening_paren(ops_stack.top())
-					&& operators_.get(ops_stack.top())->precedence()
+			while (!ops_stack_.empty() && !IsOpeningParen(ops_stack_.top())
+					&& operators_.get(ops_stack_.top())->precedence()
 							>= op->precedence()) {
-				pop_op();
+				PopOperation();
 			}
-			ops_stack.push(c);
-		} else if (is_opening_paren(c)) {
-			ops_stack.push(c);
-		} else if (is_closing_paren(c)) {
-			while (!is_opening_paren(ops_stack.top())) {
-				pop_op();
+			ops_stack_.push(c);
+		} else if (IsOpeningParen(c)) {
+			ops_stack_.push(c);
+		} else if (IsClosingParen(c)) {
+			while (!IsOpeningParen(ops_stack_.top())) {
+				PopOperation();
 			}
-			ops_stack.pop();
+			ops_stack_.pop();
 		}
 
 	}
 
-	while (!ops_stack.empty()) {
-		pop_op();
+	while (!ops_stack_.empty()) {
+		PopOperation();
 	}
-	Value *exp = values_stack.top();
+	Value *exp = values_stack_.top();
 
-	values_stack.pop();
+	values_stack_.pop();
 	return exp;
 }

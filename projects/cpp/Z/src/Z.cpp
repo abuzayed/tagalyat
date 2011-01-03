@@ -17,9 +17,9 @@ int main() {
 		cin >> line;
 
 		cout << "line: \"" << line << "\"" << endl;
-		Value* exp = parser.parse(line);
+		Value* exp = parser.Parse(line);
 
-		exp->print(&cout);
+		exp->Print(&cout);
 
 		cout << endl;
 

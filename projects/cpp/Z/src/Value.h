@@ -15,29 +15,29 @@
 
 class Value {
 public:
-	virtual double get_value() =0;
-	virtual void print(std::ostream *out) =0;
+	virtual double GetValue() =0;
+	virtual void Print(std::ostream *out) =0;
 };
 
 class Constant: public Value {
-	double value;
+	double value_;
 public:
 	Constant(double v);
-	double get_value();
-	void print(std::ostream *out);
+	double GetValue();
+	void Print(std::ostream *out);
 };
 
 class Operation: public Value {
 
 	Operator* op_;
-	std::list<Value*> params;
+	std::list<Value*> params_;
 
 public:
 
 	Operation(Operator* op);
-	void add_param(Value* param);
-	double get_value();
-	void print(std::ostream *out);
+	void AddParam(Value* param);
+	double GetValue();
+	void Print(std::ostream *out);
 };
 
 #endif /* VALUE_H_ */

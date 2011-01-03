@@ -12,35 +12,35 @@
 using namespace std;
 
 Constant::Constant(double v) {
-	value = v;
+	value_ = v;
 }
 
-double Constant::get_value() {
-	return value;
+double Constant::GetValue() {
+	return value_;
 }
 
-void Constant::print(std::ostream *out) {
-	(*out) << value;
+void Constant::Print(std::ostream *out) {
+	(*out) << value_;
 }
 
 Operation::Operation(Operator* op) {
 	op_ = op;
 }
 
-void Operation::add_param(Value* param) {
-	params.push_back(param);
+void Operation::AddParam(Value* param) {
+	params_.push_back(param);
 }
 
-double Operation::get_value() {
+double Operation::GetValue() {
 	return -1;
 }
 
-void Operation::print(std::ostream *out) {
+void Operation::Print(std::ostream *out) {
 	(*out) << op_->name() << "(";
 
-	for (list<Value*>::iterator it = params.begin(); it != params.end(); it++) {
-		(*it)->print(out);
-		if ((*it) != params.back())
+	for (list<Value*>::iterator it = params_.begin(); it != params_.end(); it++) {
+		(*it)->Print(out);
+		if ((*it) != params_.back())
 			(*out) << ",";
 	}
 
