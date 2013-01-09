@@ -7,44 +7,6 @@ from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText                                                                 
 from email.MIMEImage import MIMEImage                                                               
 
-class Security:                                                                                        
-    def __init__(self, sec_id, symbol, desc):                                                               
-        self.sec_id = sec_id                                                                        
-        self.symbol = symbol                                                                        
-        self.desc = desc
-                                                                         
-    def __str__(self):
-        return 'Security[' + self.symbol + '|' + self.desc + ']'
-
-class History:                                                                                        
-    def __init__(self, security, start=None, end=None):                                                               
-        self.security = security 
-        self.start = start                                                            
-        self.end = end                                                              
-        self.times = []                                                                          
-        self.opens = []                                                                          
-        self.highs = []                                                                          
-        self.lows = []                                                                           
-        self.closes = []                                                                         
-        self.volumes = []                                                                        
-        self.adj_closes = []                                                                                                           
-
-    def len(self):
-        return len(self.times)
-
-    def __str__(self):
-        return 'History[' + self.security.symbol + '|' + str(self.start) \
-            + '|' + str(self.end) + ']'
-
-class Chart:                                                                                        
-    def __init__(self, name, filename):                                                               
-        self.name = name                                                                        
-        self.filename = filename                                                                        
-                                                                         
-    def __str__(self):
-        return 'Chart[' + self.name + '|' + self.filename + ']'
-
-
 def sma(values, window):                                                                            
     sma = []                                                                                        
     total = 0                                                                                       
@@ -90,7 +52,7 @@ def plot(title, dates, lines, labels, count, name, wdir):
 #    plt.show()                                                                                     
     plt.savefig(filename)
     
-    return Chart(name, filename)                                                                     
+    return (name, filename)                                                                     
 
 def emailCharts(fromaddr, toaddrs, subject, charts, server, username, password):                                                          
     msgRoot = MIMEMultipart()   
@@ -104,15 +66,15 @@ def emailCharts(fromaddr, toaddrs, subject, charts, server, username, password):
     msgAlternative.attach(msgText)                                                                  
     html = '<br>'                                                                                   
     for chart in charts:                                                                            
-        html = html + '<img src="cid:' + chart.name + '"><br>'                                  
+        html = html + '<img src="cid:' + chart[0] + '"><br>'                                  
                                                                                                     
     msgText = MIMEText(html, 'html')                                                                
     msgAlternative.attach(msgText)                                                                  
     for chart in charts:                                                                            
-        fp = open(chart.filename, 'rb')                                                             
+        fp = open(chart[1], 'rb')                                                             
         img = MIMEImage(fp.read())                                                                  
         fp.close()                                                                                  
-        img.add_header('Content-ID', '<' + chart.name + '>')                                    
+        img.add_header('Content-ID', '<' + chart[0] + '>')                                    
         msgRoot.attach(img)                                                                         
                                                                                                     
     smtp = smtplib.SMTP(server)                                                       

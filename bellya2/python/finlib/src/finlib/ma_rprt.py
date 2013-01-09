@@ -1,19 +1,30 @@
-import findb
+import finmdb
+from yahoo import Yahoo                                                                      
 from ConfigParser import SafeConfigParser
 import logging
-from datetime import date                                                                    
 from datetime import datetime                                                                       
 from datetime import timedelta                                                                      
 import finlib
 
 
-def plotThreeSMA(history, wdir):
-    sec = history.security
+def plotThreeSMA(sec, history, wdir):
+    
+    adj_closes = []
+    dates = []
+    for h in history:
+        adj_closes.append(h['adj_close'])
+        dates.append(h['date'])
                                                                          
-    sma1 = finlib.sma(history.adj_closes, 7)                                                      
-    sma2 = finlib.sma(history.adj_closes, 15)                                                     
-    sma3 = finlib.sma(history.adj_closes, 30)                                                     
-                                                                                                
+    sma1 = finlib.sma(adj_closes, 7)
+    sma2 = finlib.sma(adj_closes, 15)
+    sma3 = finlib.sma(adj_closes, 30)
+
+    print dates
+    print adj_closes
+    print sma1
+    print sma2
+    print sma3
+
     trend = 'flat'                                                                              
     last = len(sma1) - 1                                                                        
     if sma1[last] > sma2[last]  and sma2[last] > sma3[last]:                                    
@@ -21,12 +32,13 @@ def plotThreeSMA(history, wdir):
     if sma1[last] < sma3[last] :                                                                
         trend = 'down'                                                                          
                                                                                                 
-    title = sec.desc[:25] + ' (' + sec.symbol + ') - ' + trend                                
-    lines = [history.adj_closes, sma1, sma2, sma3]                                         
+    title = sec['symbol'] + ' - ' + trend + ' (' + "{0:.2f}".format(sma3[last]) + ')'     
+                         
+    lines = [adj_closes, sma1, sma2, sma3]                                         
     labels = ['Close', 'SMA(7)', 'SMA(15)', 'SMA(30)' ]                                         
-    name = sec.symbol + '-' + datetime.today().strftime('%Y%m%d')                                                                                       
+    name = sec['symbol'] + '-' + datetime.today().strftime('%Y%m%d')                                                                                       
                                                                                                 
-    chart = finlib.plot(title, history.times, lines, labels, 20, name, wdir)
+    chart = finlib.plot(title, dates, lines, labels, 20, name, wdir)
     return chart                     
                                                                                                     
         
@@ -41,13 +53,15 @@ def main() :
     logger.setLevel(logging.DEBUG)
     
     logger.info("starting..")
+    
+    yahoo = Yahoo(cfg.get('report', 'yahoo_url'), cfg.get('report', 'http_proxy'))
 
-    db = findb.FinDB(cfg.get('db', 'server'), cfg.get('db', 'database'), cfg.get('db', 'user'), cfg.get('db', 'password'))
+    db = finmdb.FinMongoDB('localhost', 27017, 'findb', yahoo)
     db.connect()
 
     wdir = cfg.get('report', 'wdir')
 
-    from_date = date.today() - timedelta(weeks=8)     
+    from_date = datetime.today() - timedelta(weeks=8)     
     charts = []
 
     symbols = cfg.get('report', 'symbols').strip().split(',')
@@ -59,11 +73,12 @@ def main() :
         logger.info("loading " + symbol)
     
         sec = db.getOrCreateSec(symbol)
-#        db.updateHistory(sec)
+        db.updateHistory(sec)
         history = db.getHistoryFrom(sec, from_date)
-        if history.len() > 0:
+        
+        if history.count() > 0:
             logger.info("generating chart for " + symbol)
-            charts.append(plotThreeSMA(history, wdir))
+            charts.append(plotThreeSMA(sec, history, wdir))
 
     logger.info("sending the report")
     finlib.emailCharts(cfg.get('email', 'from'), cfg.get('email', 'to'),

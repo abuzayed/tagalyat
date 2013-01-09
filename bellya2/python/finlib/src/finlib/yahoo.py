@@ -1,11 +1,10 @@
 import urllib                                                                       
 from datetime import datetime
-from finlib import History
 
 class Yahoo:                                                                                        
-    def __init__(self):                                                                             
-        self.proxies = {'http':'http://proxy-hbr-new.gslb.db.com:8080'}                            
-        self.base_url = 'http://ichart.finance.yahoo.com/table.csv'                                 
+    def __init__(self, yahoo_url, http_proxy=None):
+        self.base_url = yahoo_url
+        self.http_proxy = http_proxy
                                                                                                     
     def download(self, symbol, start_date=None, end_date=None):     
         query = {}
@@ -23,19 +22,28 @@ class Yahoo:
                                                                                                     
         data = urllib.urlencode(query)                      
         url = self.base_url + '?' + data
-#        f = urllib.urlopen(url)                                                                     
-        f = urllib.urlopen(url, proxies=self.proxies)                                              
+        if self.http_proxy == None:
+            f = urllib.urlopen(url)      
+        else:                                                               
+            f = urllib.urlopen(url, proxies={'http':self.http_proxy})                                              
         s = f.read()                                                                                
         f.close() 
         return s                                                                                    
                                                                                                     
     def fetch(self, security, start_date=None, end_date=None):   
-        history = History(security, start_date, end_date)                                                         
-        s = self.download(security.symbol, start_date, end_date)
+        s = self.download(security['symbol'], start_date, end_date)
         
         if s.startswith('<!doctype html'):
             return None
-        
+
+        dates = []
+        opens = []
+        highs = []
+        lows = []
+        closes = []
+        volumes = []
+        adj_closes = []
+
         lines = s.split('\n')                                                                 
         N = len(lines)                                                                              
         for i in range(1, N):                                                                       
@@ -43,17 +51,24 @@ class Yahoo:
             if len(line) == 0:                                                                      
                 continue                                                                            
             fields = line.split(',')                                                                
-            history.times.append(datetime.strptime(fields[0], '%Y-%m-%d'))                        
-            history.opens.append(float(fields[1]))                                                  
-            history.highs.append(float(fields[2]))                                                  
-            history.lows.append(float(fields[3]))                                                   
-            history.closes.append(float(fields[4]))                                                 
-            history.volumes.append(int(fields[5]))                                                  
-            history.adj_closes.append(float(fields[6]))                                             
-                           
-        history.start = history.times[0]
-        history.end = history.times[len(history.times) - 1]
-
+            dates.append(datetime.strptime(fields[0], '%Y-%m-%d'))                        
+            opens.append(float(fields[1]))                                                  
+            highs.append(float(fields[2]))                                                  
+            lows.append(float(fields[3]))                                                   
+            closes.append(float(fields[4]))                                                 
+            volumes.append(int(fields[5]))                                                  
+            adj_closes.append(float(fields[6]))                                             
+                    
+                    
+        history = { 'dates':dates,
+                   'opens':opens,
+                   'highs':highs,
+                   'lows':lows,
+                   'closes':closes,
+                   'volumes':volumes,
+                   'adj_closes':adj_closes
+                   }
+                          
         return history                                    
     
     
